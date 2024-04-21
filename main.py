@@ -1,4 +1,5 @@
-from eth_account import Account
+# from eth_account import Account
+import base64
 import ecies
 from bip_utils import Bip39MnemonicGenerator, Bip39SeedGenerator, Bip39WordsNum, Bip32Secp256k1
 
@@ -23,8 +24,18 @@ def encrypt_message(public_key_hex, message):
     encrypted_msg = ecies.encrypt(public_key_hex, message.encode())
     return encrypted_msg
 
+def encrypt_message_to_base64(public_key_hex, message):
+    encrypted_msg = ecies.encrypt(public_key_hex, message.encode())
+    encrypted_msg_base64 = base64.b64encode(encrypted_msg).decode()
+    return encrypted_msg_base64
+
 # define the decrypt function
 def decrypt_message(private_key_hex, encrypted_msg):
+    decrypted_msg = ecies.decrypt(private_key_hex, encrypted_msg)
+    return decrypted_msg.decode()
+
+def decrypt_message_from_base64(private_key_hex, encrypted_msg_base64):
+    encrypted_msg = base64.b64decode(encrypted_msg_base64)
     decrypted_msg = ecies.decrypt(private_key_hex, encrypted_msg)
     return decrypted_msg.decode()
 
@@ -32,6 +43,8 @@ def decrypt_message(private_key_hex, encrypted_msg):
 message = "Hello, this is a test message!"
 encrypted_message = encrypt_message(public_key, message)
 print("Encrypted:", encrypted_message)
+encrypted_message_base64 = encrypt_message_to_base64(public_key, message)
+print("Encrypted (Base64):", encrypted_message_base64)
 
 
 # Read private key from mnemonic phrases
@@ -52,3 +65,7 @@ private_key_hex = bip32_child_key.PrivateKey().Raw().ToHex()
 
 decrypted_message = decrypt_message(private_key_hex, encrypted_message)
 print("Decrypted:", decrypted_message)
+
+decrypted_message = decrypt_message_from_base64(private_key_hex, encrypted_message_base64)
+print("Decrypted:", decrypted_message)
+
