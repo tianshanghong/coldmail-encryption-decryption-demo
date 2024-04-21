@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Message and Recover Public Key with Ethers.js</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+</head>
+
+<body>
+    <button onclick="signAndRecoverPublicKey()">Sign Message and Recover Public Key</button>
+    <script>
+        async function signAndRecoverPublicKey() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Request access to account
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    const signer = provider.getSigner();
+
+                    const message = "Hello, please sign this message!";
+
+                    // Request user to sign a message
+                    const signature = await signer.signMessage(message);
+                    console.log('Signature:', signature);
+
+                    // Recover public key
+                    const messageBytes = ethers.utils.arrayify(ethers.utils.hashMessage(message));
+                    const recoveredPublicKey = ethers.utils.recoverPublicKey(messageBytes, signature);
+                    console.log('Recovered Public Key:', recoveredPublicKey);
+                } catch (error) {
+                    console.error("Error:", error);
+                }
+            } else {
+                console.log('MetaMask is not installed!');
+            }
+        }
+
+    </script>
+</body>
+
+</html>
